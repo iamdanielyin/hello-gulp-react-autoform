@@ -19,6 +19,15 @@ const gulp = require('gulp'),
     htmlmin = require('gulp-htmlmin'),
     runSequence = require('run-sequence');
 
+// 服务端构建任务
+gulp.task('server', function () {
+    return gulp.src('./*.js')      //引入所有需处理的JS
+        .pipe(babel({presets: ['es2015']}))//babel转换ES2015语法
+        .pipe(jshint.reporter('default'))         //JS代码检查
+        .pipe(gulp.dest('./dist/'))        //构建后输出
+    // .pipe(notify({message: '服务端构建完成'}));
+});
+
 // 前端样式处理任务
 gulp.task('styles', function () {
     return gulp.src('src/public/styles/**/*.css')    //引入所有前端样式文件
@@ -40,7 +49,7 @@ gulp.task('htmls', function () {
 gulp.task('scripts', function () {
     return gulp.src('src/**/*.+(js|jsx)')      //引入所有需处理的JS和JSX文件
         .pipe(babel({presets: ['es2015', 'react']}))
-        .pipe(concat('autoform.js'))                  //合并所有文件
+        // .pipe(concat('autoform.js'))                  //合并所有文件
         .pipe(uglify())                           //压缩合并文件
         .pipe(rename({suffix: '.min'}))         //重命名压缩文件
         .pipe(gulp.dest('./dist/'))        //输出压缩后的文件
@@ -76,6 +85,7 @@ gulp.task('clean', function () {
 
 // 文档临听任务
 gulp.task('watch', ['build'], function () {
+    gulp.watch('./*.js', ['server']);//监听服务端
     gulp.watch('src/public/styles/**/*.css', ['styles']);//监听前端样式
     gulp.watch('src/**/*.+(js|jsx)', ['scripts']);//监听前端脚本
     gulp.watch('src/public/images/**/*', ['images']);//监听前端图片资源
@@ -85,7 +95,7 @@ gulp.task('watch', ['build'], function () {
 });
 
 // 注册默认任务
-gulp.task('build', ['styles', 'scripts', 'images', 'htmls',
+gulp.task('build', ['server','styles', 'scripts', 'images', 'htmls',
     'node_modules', 'pkgfile'
 ]);
 
